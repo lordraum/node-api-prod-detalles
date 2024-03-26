@@ -1,0 +1,33 @@
+[
+  {
+    "title": "Caja Dulce Detalle",
+    "price": 45000,
+    "category": "Cajas Sorpresa",
+    "tags": [
+      "Chocolates",
+      "mug",
+      "hombre",
+      "mujer"
+    ]
+  },
+  {
+    "title": "Desayuno Feliz día",
+    "price": 65000,
+    "category": "Desayunos",
+    "tags": [
+      "Flores",
+      "Hombre",
+      "Mujer"
+    ]
+  },
+  {
+    "title": "Mini Ancheta",
+    "price": 0,
+    "category": "Anchetas",
+    "tags": [
+      "cumpleaños",
+      "hombre",
+      "mujer"
+    ]
+  }
+]
