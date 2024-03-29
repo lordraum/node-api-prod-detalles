@@ -33,9 +33,45 @@ app.post('/products', (req, res) => {
   }
 
   products.push(newProduct)
-  res.json(products)
+  res.status(201).json(newProduct)
 })
 
-app.use((req, res) => res.send('<h1>Error 404: Recurso no encontrado</>'))
+// updateProduct
+app.patch('/products/:id', (req, res) => {
+  const { id } = req.params
+  const fieldsToUpdate = req.body
+  const productIndex = products.findIndex(product => product.id === id)
+
+  if (productIndex === -1) {
+    res.status(400).json({ message: 'Not found' })
+  }
+
+  const productToUpdate = products[productIndex]
+
+  const updatedProduct = {
+    ...productToUpdate,
+    ...fieldsToUpdate
+  }
+
+  products[productIndex] = updatedProduct
+
+  res.status(200).json(updatedProduct)
+})
+
+// delete product
+app.delete('/products/:id', (req, res) => {
+  const { id } = req.params
+  const productIndex = products.findIndex(product => product.id === id)
+
+  if (productIndex === -1) {
+    res.status(400).json({ message: 'Not found' })
+  }
+
+  products.splice(productIndex, 1)
+
+  res.status(200).json({ message: 'movie deleted' })
+})
+
+app.use((req, res) => res.send('<h1>Error 404: Recurso no encontrado</h1>'))
 
 app.listen(PORT, () => console.log(`App lanzada en el puerto ${PORT}`))

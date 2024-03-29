@@ -1,5 +1,6 @@
 [
   {
+    "id": "1",
     "title": "Caja Dulce Detalle",
     "price": 45000,
     "category": "Cajas Sorpresa",
@@ -11,6 +12,7 @@
     ]
   },
   {
+    "id": "2",
     "title": "Desayuno Feliz día",
     "price": 65000,
     "category": "Desayunos",
@@ -21,6 +23,7 @@
     ]
   },
   {
+    "id": "3",
     "title": "Mini Ancheta",
     "price": 0,
     "category": "Anchetas",
