@@ -1,14 +1,31 @@
 import createExpressServer, { json } from 'express'
 import { createRequire } from 'node:module'
 import { randomUUID } from 'node:crypto'
+import cors from 'cors'
+
+import { validateProduct, validatePartialProduct } from './schemas/z_product.js'
+
 process.loadEnvFile()
 
 const app = createExpressServer()
 const require = createRequire(import.meta.url)
-const products = require('./data.json')
+const products = require('./products.json')
 const PORT = process.env.PORT ?? '4321'
 
+const whitelist = ['http://localhost:8080', 'http://localhost:3000']
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (whitelist.includes(origin)) {
+      callback(null, true)
+    } else {
+      callback(new Error('Not allowed by CORS'))
+    }
+  }
+}
+
 app.use(json())
+
+app.use(cors(corsOptions))
 
 // getAll
 app.get('/products', (req, res) => {
@@ -17,19 +34,15 @@ app.get('/products', (req, res) => {
 
 // createProduct
 app.post('/products', (req, res) => {
-  const {
-    title,
-    price,
-    category,
-    tags
-  } = req.body
+  const result = validateProduct(req.body)
+
+  console.log(result)
+
+  if (!result.success) return res.status(400).json({ error: JSON.parse(result.error.message) })
 
   const newProduct = {
     id: randomUUID(),
-    title,
-    price,
-    category,
-    tags: tags ?? ''
+    ...result.data
   }
 
   products.push(newProduct)
@@ -39,7 +52,10 @@ app.post('/products', (req, res) => {
 // updateProduct
 app.patch('/products/:id', (req, res) => {
   const { id } = req.params
-  const fieldsToUpdate = req.body
+  const result = validatePartialProduct(req.body)
+
+  if (!result.success) return res.status(400).json({ error: JSON.parse(result.error.message) })
+
   const productIndex = products.findIndex(product => product.id === id)
 
   if (productIndex === -1) {
@@ -50,7 +66,7 @@ app.patch('/products/:id', (req, res) => {
 
   const updatedProduct = {
     ...productToUpdate,
-    ...fieldsToUpdate
+    ...result.data
   }
 
   products[productIndex] = updatedProduct
