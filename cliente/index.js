@@ -1,14 +1,4 @@
-const newProduct = {
-  title: 'Caja Feliz Día',
-  price: 55000,
-  category: 'Cajas Sorpresa',
-  tags: [
-    'chocolates',
-    'mug',
-    'hombre',
-    'mujer'
-  ]
-}
+import { newProduct } from './new_product'
 
 const res = await fetch('http://localhost:1234/products')
 

@@ -1,69 +1,48 @@
 import { Router } from 'express'
-import { randomUUID } from 'node:crypto'
-import { readJSON } from '../utils.js'
+import { ProductModel } from '../models/product.js'
 import { validateProduct, validatePartialProduct } from '../schemas/z_product.js'
 
 export const productsRouter = Router()
 
-const products = readJSON('./products.json')
-
 // getAll
-productsRouter.get('/', (req, res) => {
+productsRouter.get('/', async (req, res) => {
+  const products = await ProductModel.getAll()
   res.json(products)
 })
 
 // createProduct
-productsRouter.post('/', (req, res) => {
+productsRouter.post('/', async (req, res) => {
   const result = validateProduct(req.body)
-
-  console.log(result)
-
   if (!result.success) return res.status(400).json({ error: JSON.parse(result.error.message) })
 
-  const newProduct = {
-    id: randomUUID(),
-    ...result.data
-  }
-
-  products.push(newProduct)
+  const newProduct = await ProductModel.create({ input: result.data })
   res.status(201).json(newProduct)
 })
 
 // updateProduct
-productsRouter.patch('/:id', (req, res) => {
-  const { id } = req.params
+productsRouter.patch('/:id', async (req, res) => {
   const result = validatePartialProduct(req.body)
 
   if (!result.success) return res.status(400).json({ error: JSON.parse(result.error.message) })
 
-  const productIndex = products.findIndex(product => product.id === id)
+  const { id } = req.params
 
-  if (productIndex === -1) {
-    res.status(400).json({ message: 'Not found' })
-  }
+  const updateProduct = await ProductModel.update({ input: result.data, id })
 
-  const productToUpdate = products[productIndex]
+  if (!updateProduct) return res.status(400).json({ message: 'Movie not found' })
 
-  const updatedProduct = {
-    ...productToUpdate,
-    ...result.data
-  }
-
-  products[productIndex] = updatedProduct
-
-  res.status(200).json(updatedProduct)
+  res.status(200).json(updateProduct)
 })
 
 // delete product
-productsRouter.delete('/:id', (req, res) => {
+productsRouter.delete('/:id', async (req, res) => {
   const { id } = req.params
-  const productIndex = products.findIndex(product => product.id === id)
 
-  if (productIndex === -1) {
-    res.status(400).json({ message: 'Not found' })
+  const result = await ProductModel.delete({ id })
+
+  if (!result) {
+    return res.status(404).json({ message: 'Movie not found' })
   }
 
-  products.splice(productIndex, 1)
-
-  res.status(200).json({ message: 'movie deleted' })
+  return res.json({ message: 'Movie deleted' })
 })
